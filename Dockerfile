@@ -1,9 +1,17 @@
-FROM golang
+# Build Stage
+FROM golang:1.16.5-alpine3.13 AS builder
 
-ADD . $GOPATH/github.com/AkashGit21/hostelites
+WORKDIR /app
 
-RUN go install github.com/AkashGit21/hostelites@latest
+COPY . $GOPATH/src/github.com/AkashGit21/hostelites
 
-ENTRYPOINT $GOPATH/bin/hostelites
+RUN go get -u github.com/AkashGit21/hostelites && mv $GOPATH/bin/hostelites .
+
+# Run stage
+FROM alpine:3.13
+
+COPY --from=builder /app /app
+
+ENTRYPOINT ["/app/hostelites"]
 
 EXPOSE 8080
